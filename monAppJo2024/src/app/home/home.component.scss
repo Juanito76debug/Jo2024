@@ -1,0 +1,21 @@
+.home-container {
+    h1 {
+      text-align: center;
+    }
+    .real-time-info {
+      display: flex;
+      justify-content: space-around;
+      p {
+        span {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .real-time-info {
+      flex-direction: row;
+      justify-content: space-around;
+    }
+  }

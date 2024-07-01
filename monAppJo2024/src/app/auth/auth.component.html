@@ -1,0 +1,8 @@
+<div *ngIf="!authService.isLoggedIn()">
+    <app-login *ngIf="authService.isVisitor()"></app-login>
+    <app-register *ngIf="authService.isVisitor()"></app-register>
+    <app-forgot-password *ngIf="authService.isVisitor()"></app-forgot-password>
+  </div>
+  <div *ngIf="authService.isLoggedIn()">
+    <app-logout *ngIf="authService.isMember() || authService.isAdmin()"></app-logout>
+  </div>

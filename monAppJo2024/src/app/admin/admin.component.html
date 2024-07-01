@@ -1,0 +1,23 @@
+<div class="admin-container">
+    <h1>Gestion des Utilisateurs</h1>
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom d'utilisateur</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button (click)="deleteUser(user.id)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
