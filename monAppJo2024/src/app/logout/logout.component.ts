@@ -13,7 +13,8 @@ export class LogoutComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   logout() {
-    this.authService.logout();
+    this.authService.logout(); 
+    // test
 
         // Ici, vous pouvez ajouter votre logique de déconnexion
       console.log('Utilisateur déconnecté');
