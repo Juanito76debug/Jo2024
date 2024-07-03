@@ -38,19 +38,20 @@ export class RegisterComponent {
   }
 
   onRegister() {
+    
+    console.log('Début de onRegister');
     if (this.validateForm()) {
-      console.log('onRegister');
+      console.log('Formulaire valide', this.registerData);
       this.http.post('http://localhost:3000/api/auth/register', this.registerData).subscribe(
         (response: any) => {
-          console.log('Inscription réussie', response);
+          console.log('Réponse du serveur', response);
           if (response.success) {
             this.successMessage = 'Inscription réussie ! Un email de confirmation a été envoyé.';
-            // Optionnel : Redirection après un délai
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 3000);
+            console.log('Inscription réussie');
+            this.navigateToLogin();
           } else {
             this.errorMessage = 'Erreur lors de l\'inscription';
+            console.log('Erreur lors de l\'inscription');
           }
         },
         (error) => {
@@ -58,6 +59,13 @@ export class RegisterComponent {
           console.error('Erreur de connexion', error);
         }
       );
+    } else {
+      console.log('Formulaire invalide');
     }
+    console.log('Fin de onRegister');
+  }
+
+  navigateToLogin() {
+    this.router.navigate(['/login']);
   }
 }

@@ -17,8 +17,8 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'logout', component: LogoutComponent },
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard], data: {requiredType:'admin'}},
+  {path: 'logout', component: LogoutComponent },
+  {path: 'admin', component: AdminComponent, canActivate: [AuthGuard], data: {requiredType:'admin'}},
   
 
 

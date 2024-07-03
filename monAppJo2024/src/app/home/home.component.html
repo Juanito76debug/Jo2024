@@ -1,10 +1,11 @@
-<div class="home-container">
-    <h1>Bienvenue sur le Réseau Social des JO 2024</h1>
-    <div *ngIf="isLoggedIn$ | async as isLoggedIn">
-      <p>Bonjour, {{ isLoggedIn ? 'membre' : 'visiteur' }}!</p>
-    </div>
-    <div class="real-time-info">
-      <p>Nombre de messages publiés : <span>{{ messageCount$ | async }}</span></p>
-      <p>Nombre de membres connectés : <span>{{ connectedUserCount$ | async }}</span></p>
-    </div>
+<<div class="home-container">
+  <h1>Bienvenue sur le Réseau Social des JO 2024</h1>
+  <div *ngIf="isLoggedIn$ | async as isLoggedIn">
+    <p>Bonjour, {{ isLoggedIn ? 'membre' : 'visiteur' }}!</p>
   </div>
+  <div class="real-time-info">
+    <p>Nombre de messages publiés : <span>{{ messageCount$ | async }}</span></p>
+    <p>Nombre de membres connectés : <span>{{ connectedUserCount$ | async }}</span></p>
+  </div>
+  <app-logout *ngIf="isLoggedIn()"></app-logout>
+</div>

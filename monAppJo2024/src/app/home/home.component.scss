@@ -9,9 +9,14 @@
         span {
           font-weight: bold;
         }
+
+        button {
+          display: block;
       }
+
     }
-  }
+    }  
+}
 
   @media (max-width: 768px) {
     .real-time-info {

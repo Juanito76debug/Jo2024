@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import open from 'open';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cors from 'cors'; // Importation de cors
+import cors from 'cors';
 import nodemailer from 'nodemailer';
 
 const app = express();
@@ -23,11 +23,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-app.use(cors()); // Utilisation du middleware cors
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('Bienvenue sur le serveur Node.js pour les Jeux Olympiques 2024!');
+  res.send('Bienvenue sur le serveur Node.js pour les Jeux Olympiques 2024!');
 });
 
 mongoose.connect('mongodb://localhost:27017/monAppJo2024', { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
@@ -36,10 +36,10 @@ mongoose.connect('mongodb://localhost:27017/monAppJo2024', { useNewUrlParser: tr
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  email: { type: String, required: true, unique: true }
 });
 
-// Middleware pour hasher le mot de passe avant de sauvegarder l'utilisateur
 userSchema.pre('save', async function(next) {
   if (this.isModified('password') || this.isNew) {
     const salt = await bcrypt.genSalt(10);
@@ -51,11 +51,9 @@ userSchema.pre('save', async function(next) {
 
 const User = mongoose.model('User', userSchema);
 
-// Route pour l'inscription
 app.post('/api/auth/register', async (req, res) => {
   const { username, password, email } = req.body;
 
-  // Vérifications simples
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
   }
@@ -63,12 +61,18 @@ app.post('/api/auth/register', async (req, res) => {
     return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères' });
   }
 
-  // Vérification des identifiants en dur
-  if (username === 'Martin' && password === '123456') {
-    // Envoyer un email de confirmation
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Le nom d\'utilisateur est déjà pris' });
+    }
+
+    const newUser = new User({ username, password, email });
+    await newUser.save();
+
     const mailOptions = {
-      from: 'votre.email@gmail.com',
-      to: email, // Utiliser l'email saisi par l'utilisateur
+      from: 'votre_email@gmail.com',
+      to: email,
       subject: 'Confirmation d\'inscription',
       text: 'Votre inscription a été réussie !'
     };
@@ -81,22 +85,18 @@ app.post('/api/auth/register', async (req, res) => {
         return res.status(201).json({ message: 'Utilisateur créé avec succès', success: true });
       }
     });
-  } else {
-    return res.status(400).json({ message: 'Identifiants incorrects', success: false });
+  } catch (error) {
+    return res.status(500).json({ message: 'Erreur lors de l\'inscription', error });
   }
 });
-// Route pour l'authentification
+
 app.post('/api/auth/login', async (req, res) => {
-  // Afficher en console les paramètres reçus
   console.log('Paramètres reçus:', req.body);
 
-  // Vérifier le username/password en dur
   const { username, password } = req.body;
   if (username === 'Martin' && password === '1234') {
-    // Si les identifiants sont corrects, renvoyer une réponse positive
     res.status(200).json({ message: 'Connexion réussie', success: true });
   } else {
-    // Si les identifiants sont incorrects, renvoyer une réponse négative
     res.status(401).json({ message: 'Identifiants incorrects', success: false });
   }
 });
@@ -131,19 +131,15 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Un utilisateur s\'est déconnecté');
   });
-
-  // Ajoutez ici d'autres gestionnaires d'événements pour Socket.IO
 });
 
-// Assurez-vous que le chemin vers le fichier index.html est correct
 const staticPath = path.join('C:/Users/jgimenez/OneDrive - cdc-habitat.fr/Documents/jo2024/monAppJo2024/src');
-console.log('Static path:', staticPath); // Ajout d'un log pour vérifier le chemin
+console.log('Static path:', staticPath);
 app.use(express.static(staticPath));
 
-// Servir index.html uniquement pour les routes non-API
 app.get('*', (req, res) => {
   const indexPath = path.join(staticPath, 'index.html');
-  console.log('Serving index.html from:', indexPath); // Ajout d'un log pour vérifier le chemin
+  console.log('Serving index.html from:', indexPath);
   res.sendFile(indexPath);
 });
 

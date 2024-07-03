@@ -6,6 +6,7 @@ import { RegisterComponent } from '../register/register.component';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 import { LogoutComponent } from '../logout/logout.component';
 
+
 @Component({
   selector: 'app-auth',
   standalone: true,
