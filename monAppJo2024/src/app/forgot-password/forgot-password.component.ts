@@ -19,19 +19,25 @@ export class ForgotPasswordComponent {
   constructor(private http: HttpClient) {}
 
   onSubmit() {
+    console.log('Form submitted with email:', this.email); // Débogage initial
+
     if (this.email) {
-      this.http.post('/api/forgot-password', { email: this.email })
+      console.log('Sending POST request to /api/forgot-password'); // Débogage avant l'appel HTTP
+
+      this.http.post('http://localhost:3000/api/forgot-password', { email: this.email })
         .subscribe(
           response => {
-            console.log('Email de récupération envoyé');
+            console.log('Response received:', response); // Débogage de la réponse
             this.errorMessage = ''; // Réinitialiser le message d'erreur en cas de succès
             this.emailSent = true; // Afficher le message de confirmation
           },
           error => {
-            console.error('Erreur lors de l\'envoi de l\'email', error);
+            console.error('Error occurred:', error); // Débogage de l'erreur
             this.errorMessage = 'Adresse email non trouvée. Veuillez réessayer.';
           }
         );
+    } else {
+      console.warn('Email field is empty'); // Débogage si le champ email est vide
     }
   }
 }

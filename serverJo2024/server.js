@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto'; // Pour générer de nouveaux identifiants
 
 const app = express();
 const server = createServer(app);
@@ -98,6 +99,40 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(200).json({ message: 'Connexion réussie', success: true });
   } else {
     res.status(401).json({ message: 'Identifiants incorrects', success: false });
+  }
+});
+
+// Route pour la récupération de mot de passe
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send('Utilisateur non trouvé');
+    }
+
+    // Générer de nouveaux identifiants
+    const newPassword = crypto.randomBytes(8).toString('hex');
+    user.password = newPassword; // Assurez-vous de hacher le mot de passe avant de le sauvegarder
+    await user.save();
+
+    // Logique pour envoyer l'email de récupération
+    const mailOptions = {
+      from: 'votre_email@gmail.com',
+      to: email,
+      subject: 'Réinitialisation de mot de passe',
+      text: `Vos nouveaux identifiants de connexion :\nEmail : ${email}\nMot de passe : ${newPassword}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).send('Erreur lors de l\'envoi de l\'email');
+      }
+      res.status(200).send('Email de récupération envoyé');
+    });
+  } catch (error) {
+    res.status(500).send('Erreur du serveur');
   }
 });
 
