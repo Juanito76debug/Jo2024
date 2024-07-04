@@ -8,6 +8,8 @@ import { RegisterComponent } from './register/register.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { AuthGuard } from './auth.guard';
 import { AdminComponent } from './admin/admin.component';
+import { ProfileComponent } from './profile/profile.component';
+
 
 
 export const routes: Routes = [
@@ -19,6 +21,11 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   {path: 'logout', component: LogoutComponent },
   {path: 'admin', component: AdminComponent, canActivate: [AuthGuard], data: {requiredType:'admin'}},
+  {path: 'profile',
+    component: ProfileComponent,
+    canActivate: [AuthGuard],
+    data: { expectedRoles: ['admin', 'member'] }}
+  
   
 
 

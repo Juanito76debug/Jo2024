@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import io from 'socket.io-client';
+import { HttpClient } from '@angular/common/http';
 
 
 @Injectable({
@@ -9,9 +10,11 @@ import io from 'socket.io-client';
 export class UserService {
   private socket;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.socket = io('http://localhost:3000');
   }
+
+  
 
   getAllUsers(): Observable<any[]> {
     return new Observable<any[]>(observer => {
@@ -41,4 +44,9 @@ export class UserService {
     });
 }
 
+getUserRole(): string {
+  // Simule l'obtention du rôle de l'utilisateur (à remplacer par une vraie implémentation)
+  return 'member'; // ou 'admin'
 }
+}
+

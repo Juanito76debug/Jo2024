@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable, catchError, map, of } from 'rxjs';
 import { AuthService, UserType } from './home/auth.service';
+import { UserService } from './home/User.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private userService: UserService) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -37,5 +38,16 @@ export class AuthGuard implements CanActivate {
         return of(false);
       })
     );
+  }
+  
+  private checkUserRole(route: ActivatedRouteSnapshot): boolean {
+    const expectedRoles = route.data['expectedRoles'];
+    const userRole = this.userService.getUserRole(); // Méthode à implémenter dans UserService
+
+    if (!expectedRoles.includes(userRole)) {
+      this.router.navigate(['login']); // Redirige vers la page de connexion si l'utilisateur n'a pas le bon rôle
+      return false;
+    }
+    return true;
   }
 }

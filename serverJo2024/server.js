@@ -105,16 +105,20 @@ app.post('/api/auth/login', async (req, res) => {
 // Route pour la récupération de mot de passe
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
+  console.log('Email reçu pour réinitialisation:', email); // Log pour débogage
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('Utilisateur non trouvé pour l\'email:', email); // Log pour débogage
       return res.status(404).send('Utilisateur non trouvé');
     }
 
     // Générer de nouveaux identifiants
     const newPassword = crypto.randomBytes(8).toString('hex');
-    user.password = newPassword; // Assurez-vous de hacher le mot de passe avant de le sauvegarder
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword; // Hacher le mot de passe avant de le sauvegarder
     await user.save();
 
     // Logique pour envoyer l'email de récupération
@@ -127,11 +131,14 @@ app.post('/api/forgot-password', async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
+        console.error('Erreur lors de l\'envoi de l\'email:', error); // Log pour débogage
         return res.status(500).send('Erreur lors de l\'envoi de l\'email');
       }
+      console.log('Email de récupération envoyé à:', email); // Log pour débogage
       res.status(200).send('Email de récupération envoyé');
     });
   } catch (error) {
+    console.error('Erreur du serveur:', error); // Log pour débogage
     res.status(500).send('Erreur du serveur');
   }
 });

@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ForgotPasswordComponent {
 
-  email: string = '';
+  email: string = 'martin@gmail.com';
   errorMessage: string = '';
   emailSent: boolean = false;
 

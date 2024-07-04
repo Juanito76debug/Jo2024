@@ -1,0 +1,10 @@
+<div *ngIf="user">
+    <h2>Profil de {{ user.pseudonyme }}</h2>
+    <img [src]="'assets/Juanito.png'" alt="Photo de présentation" width="150">
+    <p><strong>Nom :</strong> {{ user.nom }}</p>
+    <p><strong>Prénom :</strong> {{ user.prenom }}</p>
+    <p><strong>Préférences :</strong> {{ user.preferences }}</p>
+    <p><strong>Email :</strong> {{ user.email }}</p>
+    <p><strong>Genre :</strong> {{ user.genre }}</p>
+    <p><strong>Âge :</strong> {{ user.age }}</p>
+  </div>
