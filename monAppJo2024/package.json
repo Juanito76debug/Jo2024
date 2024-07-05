@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "serve -s dist/mon-app-jo2024 -p 80",
-    "build": "npx ng build --configuration production",
+    "build": "ng build --configuration production",
     "serve-node": "nodemon src/app/server.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
