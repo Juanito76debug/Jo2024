@@ -1,4 +1,5 @@
 export interface Membre {
+  id: number;
   pseudonyme: string;
   nom: string;
   prenom: string;
@@ -11,6 +12,7 @@ export interface Membre {
 }
 
 export const martin: Membre = {
+  id: 1, // ID unique pour chaque utilisateur
   pseudonyme: 'Marty',
   nom: 'Dupont',
   prenom: 'Martin',

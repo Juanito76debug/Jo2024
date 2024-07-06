@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../home/User.service';
 import { CommonModule } from '@angular/common';
-import { Membre, martin } from '../models/membre.model';
+import { Membre } from '../models/membre.model';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserType } from '../home/auth.service';
 
@@ -16,6 +16,11 @@ export class ProfileComponent implements OnInit {
   user: Membre | null = null; // Initialisation à null
   userRole: UserType | null = null;
   isFriendOfMartin: boolean | null = null;
+  editing: boolean = false;
+  selectedFriendId: number | null = null;
+  martinsFriends: Membre[] = [];
+  selectedUserId: number | null = null;
+  allUsers: Membre[] = [];
 
   constructor(
     private userService: UserService,
@@ -35,5 +40,44 @@ export class ProfileComponent implements OnInit {
   checkIfFriendOfMartin(): void {
     const currentUserId = 1; // Remplacez par l'ID de l'utilisateur actuel
     this.isFriendOfMartin = this.authService.isFriendOfMartin(currentUserId);
+  }
+
+  enableEditing(): void {
+    this.editing = true; // Active le mode d'édition
+  }
+
+  onSubmit(): void {
+    if (this.user) {
+      this.userService.updateUser(this.user).subscribe(
+        (response) => {
+          // Gérer la réponse
+          this.editing = false; // Désactivez le mode d'édition après la mise à jour
+          // Mettre à jour la liste des utilisateurs si nécessaire
+        },
+        (error) => {
+          // Gérer les erreurs
+        }
+      );
+    } else {
+      console.error('Erreur: Aucun utilisateur à mettre à jour.');
+    }
+  }
+  onSelectFriend(): void {
+    // Trouvez l'ami sélectionné par son ID
+    const friend = this.martinsFriends.find(
+      (f) => f.id === this.selectedFriendId
+    );
+    if (friend) {
+      this.user = friend; // Préparez l'ami sélectionné pour la modification
+      this.editing = true; // Activez le mode d'édition
+    }
+  }
+  onSelectUser(): void {
+    // Trouvez l'utilisateur sélectionné par son ID
+    const user = this.allUsers.find((u) => u.id === this.selectedUserId);
+    if (user) {
+      this.user = user; // Préparez l'utilisateur sélectionné pour la modification
+      this.editing = true; // Activez le mode d'édition
+    }
   }
 }
