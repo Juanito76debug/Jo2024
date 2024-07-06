@@ -1,10 +1,41 @@
-<div *ngIf="user">
-    <h2>Profil de {{ user.pseudonyme }}</h2>
-    <img [src]="'assets/Juanito.png'" alt="Photo de présentation" width="150">
-    <p><strong>Nom :</strong> {{ user.nom }}</p>
-    <p><strong>Prénom :</strong> {{ user.prenom }}</p>
-    <p><strong>Préférences :</strong> {{ user.preferences }}</p>
-    <p><strong>Email :</strong> {{ user.email }}</p>
-    <p><strong>Genre :</strong> {{ user.genre }}</p>
-    <p><strong>Âge :</strong> {{ user.age }}</p>
-  </div>
+<div *ngIf="user && (userRole === 'admin' || userRole === 'member')">
+  <h2>Profil de {{ user.pseudonyme }}</h2>
+  <img
+    [src]="user.photoProfil"
+    alt="Photo de profil de {{ user.pseudonyme }}"
+    width="150"
+  />
+  <p><strong>Nom :</strong> {{ user.nom }}</p>
+  <p><strong>Prénom :</strong> {{ user.prenom }}</p>
+  <p>
+    <strong>Préférences :</strong>
+    <span *ngFor="let preference of user.preferences">{{ preference }}</span>
+  </p>
+  <p><strong>Email :</strong> {{ user.email }}</p>
+  <p><strong>Genre :</strong> {{ user.genre }}</p>
+  <p>
+    <strong>Date de naissance :</strong>
+    {{ user.dateNaissance | date : "longDate" }}
+  </p>
+  <p><strong>Présentation :</strong> {{ user.presentation }}</p>
+</div>
+
+<!-- Affiche le profil de l'ami de Martin si l'utilisateur est un administrateur ou un membre et est ami avec Martin -->
+<div
+  *ngIf="
+    user &&
+    (userRole === 'admin' || (userRole === 'member' && isFriendOfMartin))
+  "
+>
+  <!-- Contenu du profil de l'ami de Martin ici -->
+</div>
+
+<!-- Affiche tous les profils si l'utilisateur est un administrateur -->
+<div *ngIf="userRole === 'admin'">
+  <!-- Contenu des profils pour l'administrateur ici -->
+</div>
+
+<!-- Affiche le profil de l'utilisateur actuel si ce n'est pas un administrateur -->
+<div *ngIf="userRole !== 'admin' && user">
+  <!-- Contenu du profil pour l'utilisateur actuel ici -->
+</div>

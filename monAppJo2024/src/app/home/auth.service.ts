@@ -4,21 +4,18 @@ import { Router } from '@angular/router';
 
 import io from 'socket.io-client';
 
-export type UserType = 'visitor' | 'member'| 'admin';
+export type UserType = 'visitor' | 'member' | 'admin';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
-
-private users = [
-    { username: 'user1', password: 'pass1' },];
+  private users = [{ username: 'user1', password: 'pass1' }];
 
   private userType = new BehaviorSubject<UserType>('visitor');
-  private isLoggedInSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private isLoggedInSubject: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
   private socket;
- 
 
   constructor() {
     this.socket = io('http://localhost:3000');
@@ -45,11 +42,12 @@ private users = [
     });
   }
 
-
   // Simule la connexion d'un utilisateur
   login(username: string, password: string): Observable<any> {
     return new Observable<any>((observer) => {
-      const user = this.users.find(u => u.username === username && u.password === password);
+      const user = this.users.find(
+        (u) => u.username === username && u.password === password
+      );
       this.socket.emit('login', { username, password });
       this.socket.on('loginResponse', (response) => {
         if (response.success && user) {
@@ -63,30 +61,23 @@ private users = [
       });
     });
 
-    
-
-    
-
     // return new Observable<boolean>(observer => {
     //   const user = this.users.find(u => u.username === username && u.password === password);
-      // this.socket.emit('login', { username, password });
-      // this.socket.on('loginResponse', (response) => {
-      //   // Ici, vous feriez une requête HTTP ou WebSocket pour vérifier les identifiants
-      //   // Pour l'exemple, nous allons simplement simuler une connexion réussie
-      //   const isLoggedIn = !!user;
-      //   this.isLoggedInSubject.next(isLoggedIn);
-      //   observer.next(isLoggedIn);
-      //   observer.complete();
-    }
-  
+    // this.socket.emit('login', { username, password });
+    // this.socket.on('loginResponse', (response) => {
+    //   // Ici, vous feriez une requête HTTP ou WebSocket pour vérifier les identifiants
+    //   // Pour l'exemple, nous allons simplement simuler une connexion réussie
+    //   const isLoggedIn = !!user;
+    //   this.isLoggedInSubject.next(isLoggedIn);
+    //   observer.next(isLoggedIn);
+    //   observer.complete();
+  }
 
   // Simule la déconnexion d'un utilisateur
   logout(): void {
     this.isLoggedInSubject.next(false);
     this.socket.emit('logout');
   }
-
-
 
   // Observable pour suivre l'état de connexion
   isLoggedIn(): Observable<boolean> {
@@ -103,5 +94,12 @@ private users = [
 
   isAdmin(): boolean {
     return this.getUserType() === 'admin';
-  } 
+  }
+
+  isFriendOfMartin(userId: number): boolean {
+    // Implémentez la logique pour déterminer si l'utilisateur est un ami de Martin
+    // Retournez true si c'est le cas, false sinon
+    // Pour l'exemple, nous allons simplement retourner true
+    return true;
+  }
 }
