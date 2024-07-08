@@ -1,3 +1,5 @@
+"use strict";
+
 import express from "express";
 import mongoose from "mongoose";
 import { createServer } from "http";
@@ -9,12 +11,17 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import nodemailer from "nodemailer";
 import crypto from "crypto"; // Pour générer de nouveaux identifiants
+import utf8 from "utf8"; //
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const encodedString = utf8.encode("Votre chaîne ici");
+console.log(encodedString);
+
+console.log("Initialisation du serveur...");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -35,10 +42,13 @@ mongoose
   .connect("mongodb://localhost:27017/monAppJo2024", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
+    
   })
   .then(() => console.log("Connexion à MongoDB réussie !"))
-  .catch(() => console.log("Connexion à MongoDB échouée !"));
+  .catch((error) => {
+    console.error("Connexion à MongoDB échouée !", error);
+    process.exit(1); // Arrête le serveur si la connexion échoue
+  });
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -162,6 +172,73 @@ app.post("/api/forgot-password", async (req, res) => {
   }
 });
 
+// Route pour obtenir le profil d'un utilisateur par ID
+app.get('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(`Erreur lors de la récupération de l'utilisateur avec ID ${userId}:`, error);
+    res.status(500).json({ message: 'Erreur lors de la récupération de l\'utilisateur', error });
+  }
+});
+
+// Route pour obtenir tous les utilisateurs
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des utilisateurs:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
+  }
+});
+
+// Route pour mettre à jour un utilisateur par ID
+app.put('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  const updateData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(`Erreur lors de la mise à jour de l'utilisateur avec ID ${userId}:`, error);
+    res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'utilisateur', error });
+  }
+});
+
+// Route pour supprimer un utilisateur par ID
+app.delete('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    await User.findByIdAndDelete(userId);
+    console.log(`Utilisateur avec ID ${userId} supprimé.`);
+    res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
+  } catch (error) {
+    console.error(`Erreur lors de la suppression de l'utilisateur avec ID ${userId}:`, error);
+    res.status(500).json({ message: 'Erreur lors de la suppression de l\'utilisateur', error });
+  }
+});
+
+// Route pour supprimer tous les utilisateurs
+app.delete('/api/users', async (req, res) => {
+  try {
+    await User.deleteMany({});
+    console.log('Tous les utilisateurs ont été supprimés.');
+    res.status(200).json({ message: 'Tous les utilisateurs ont été supprimés avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la suppression des utilisateurs:', error);
+    res.status(500).json({ message: 'Erreur lors de la suppression des utilisateurs', error });
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("Un utilisateur est connecté");
 
@@ -186,6 +263,24 @@ io.on("connection", (socket) => {
       }
     } catch (error) {
       socket.emit("loginResponse", { success: false, error });
+    }
+  });
+
+  socket.on("deleteUser", async (userId) => {
+    try {
+      await User.findByIdAndDelete(userId);
+      socket.emit('userDeleted', { success: true });
+    } catch (error) {
+      socket.emit('error', { success: false, message: error.message });
+    }
+  });
+
+  socket.on("deleteAllUsers", async () => {
+    try {
+      await User.deleteMany({});
+      socket.emit('allUsersDeleted', { success: true });
+    } catch (error) {
+      socket.emit('error', { success: false, message: error.message });
     }
   });
 

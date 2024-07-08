@@ -40,10 +40,12 @@
   <select id="friendsList" [(ngModel)]="selectedFriendId" (change)="onSelectFriend()">
     <option *ngFor="let friend of martinsFriends" [value]="friend.id">{{ friend.pseudonyme }}</option>
   </select>
+  <button (click)="deleteAllUsers()">Supprimer Tous les Profils</button>
 </div>
 
 <!-- Affiche le profil de l'utilisateur actuel si ce n'est pas un administrateur -->
 <div *ngIf="userRole !== 'admin' && user">
+  <button (click)="deleteUser(user.id)">Supprimer le Profil</button>
   <!-- Contenu du profil pour l'utilisateur actuel ici -->
 </div>
 

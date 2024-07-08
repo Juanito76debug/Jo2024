@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Membre } from '../models/membre.model';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserType } from '../home/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -24,7 +25,8 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -34,12 +36,28 @@ export class ProfileComponent implements OnInit {
   }
 
   getUserProfile(): void {
-    // Votre logique pour récupérer le profil de l'utilisateur
+    const userId = 1; // Remplace par l'ID de l'utilisateur actuel
+    this.userService.getUserProfile(userId).subscribe(
+      (user: Membre) => {
+        this.user = user;
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération du profil utilisateur:', error);
+      }
+    );
   }
+  
 
   checkIfFriendOfMartin(): void {
     const currentUserId = 1; // Remplacez par l'ID de l'utilisateur actuel
-    this.isFriendOfMartin = this.authService.isFriendOfMartin(currentUserId);
+    this.authService.isFriendOfMartin(currentUserId).subscribe(
+      (isFriend: boolean) => {
+        this.isFriendOfMartin = isFriend;
+      },
+      (error) => {
+        console.error('Erreur lors de la vérification des amis de Martin:', error);
+      }
+    );
   }
 
   enableEditing(): void {
@@ -80,4 +98,34 @@ export class ProfileComponent implements OnInit {
       this.editing = true; // Activez le mode d'édition
     }
   }
+  deleteUser(userId: number): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')) {
+      this.userService.deleteUser(userId).subscribe(
+        (response) => {
+          alert('Profil supprimé avec succès.');
+          this.router.navigate(['/home']); // Redirigez vers la page d'accueil après suppression
+        },
+        (error) => {
+          console.error('Erreur lors de la suppression du profil:', error);
+          alert('Une erreur est survenue lors de la suppression du profil.');
+        }
+      ) 
+    };
+  }
+    
+    deleteAllUsers(): void {
+      if (confirm('Êtes-vous sûr de vouloir supprimer tous les profils ?')) {
+        this.userService.deleteAllUsers().subscribe(
+          (response) => {
+            alert('Tous les profils ont été supprimés avec succès.');
+            this.router.navigate(['/home']); // Redirigez vers la page d'accueil après suppression
+          },
+          (error) => {
+            console.error('Erreur lors de la suppression de tous les profils:', error);
+            alert('Une erreur est survenue lors de la suppression de tous les profils.');
+          }
+        );
+
+  } 
+}
 }

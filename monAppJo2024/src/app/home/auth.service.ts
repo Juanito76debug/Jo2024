@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Router } from '@angular/router';
+// import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 import io from 'socket.io-client';
 
@@ -16,8 +17,10 @@ export class AuthService {
   private isLoggedInSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   private socket;
+  private apiUrl = 'http://localhost:3000/api/users';
+  private martinId = 2;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.socket = io('http://localhost:3000');
   }
   setUserType(type: UserType) {
@@ -96,10 +99,20 @@ export class AuthService {
     return this.getUserType() === 'admin';
   }
 
-  isFriendOfMartin(userId: number): boolean {
-    // Implémentez la logique pour déterminer si l'utilisateur est un ami de Martin
-    // Retournez true si c'est le cas, false sinon
-    // Pour l'exemple, nous allons simplement retourner true
-    return true;
+  isFriendOfMartin(userId: number): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
+      this.http.get<any[]>(`${this.apiUrl}/${this.martinId}/friends`).subscribe(
+        (friends: any[]) => {
+          const isFriend = friends.some(friend => friend.id === userId);
+          observer.next(isFriend);
+          observer.complete();
+        },
+        (error) => {
+          console.error('Erreur lors de la vérification des amis de Martin:', error);
+          observer.next(false);
+          observer.complete();
+        }
+      );
+    });
   }
 }

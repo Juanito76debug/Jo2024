@@ -30,9 +30,26 @@ export class UserService {
       this.socket.emit('deleteUser', userId);
       this.socket.on('userDeleted', (response: any) => {
         observer.next(response);
+        observer.complete();
+      });
+      this.socket.on('error', (error: any) => {
+        observer.error(error);
       });
     });
   }
+
+  deleteAllUsers(): Observable<any> {
+    return new Observable<any>((observer) => {
+      this.socket.emit('deleteAllUsers');
+      this.socket.on('allUsersDeleted', (response: any) => {
+        observer.next(response);
+        observer.complete();
+      });
+      this.socket.on('error', (error: any) => {
+        observer.error(error);
+      });
+    });
+  } 
 
   // Simule le suivi des utilisateurs connectés
   getConnectedUsersCount(): Observable<number> {
@@ -60,5 +77,8 @@ export class UserService {
 
     // Effectue la requête HTTP PUT pour mettre à jour l'utilisateur
     return this.http.put<Membre>(`${this.apiUrl}/${user.id}`, user);
+  }
+  getUserProfile(userId: number): Observable<Membre> {
+    return this.http.get<Membre>(`${this.apiUrl}/${userId}`);
   }
 }
