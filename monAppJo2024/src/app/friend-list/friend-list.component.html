@@ -1,0 +1,17 @@
+<div *ngIf="friends">
+  <h2>Liste d'Amis de Martin</h2>
+  <ul>
+    <li *ngFor="let friend of friends">
+      <img [src]="'assets/' + friend.photoProfil" alt="{{ friend.pseudonyme }}" width="50" height="50" />
+      <div>
+        <p>Pseudonyme: {{ friend.pseudonyme }}</p>
+        <p>Nom: {{ friend.nom }}</p>
+        <p>Prénom: {{ friend.prenom }}</p>
+      </div>
+      <button (click)="removeFriend(friend.id)">Supprimer</button>
+    </li>
+  </ul>
+  <input [(ngModel)]="newFriendId" placeholder="ID de l'ami à ajouter" />
+  <button (click)="addFriend()">Ajouter un Ami</button>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+</div>

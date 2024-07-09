@@ -24,3 +24,18 @@ export const martin: Membre = {
   presentation:
     "Passionné de sport et de l'esprit olympique, je suis toujours prêt à relever de nouveaux défis et à partager mes expériences avec la communauté.",
 };
+
+export const friends: Membre[] = [
+  {
+    id: 2,
+    pseudonyme: 'Rafa',
+    nom: 'Nadal',
+    prenom: 'Rafael',
+    preferences: ['Tennis'],
+    email: 'rafa.nadal@example.com',
+    genre: 'Homme',
+    dateNaissance: new Date('1986-06-03'), // Format AAAA-MM-JJ
+    photoProfil: 'assets/Rafa.png',
+    presentation: "Joueur de tennis professionnel, passionné par le sport et les compétitions.",
+  }
+];

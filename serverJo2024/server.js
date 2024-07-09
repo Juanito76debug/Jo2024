@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
 });
 
 userSchema.pre("save", async function (next) {
@@ -172,6 +173,25 @@ app.post("/api/forgot-password", async (req, res) => {
   }
 });
 
+app.post('/api/users/:id/friends', async (req, res) => {
+  const userId = req.params.id;
+  const friendId = req.body.friendId;
+  try {
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+    if (!user || !friend) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    user.friends.push(friendId);
+    await user.save();
+    res.status(200).json({ message: 'Ami ajouté avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de l\'ami:', error);
+    res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'ami', error });
+  }
+});
+
+
 // Route pour obtenir le profil d'un utilisateur par ID
 app.get('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
@@ -239,6 +259,24 @@ app.delete('/api/users', async (req, res) => {
   }
 });
 
+app.delete('/api/users/:id/friends/:friendId', async (req, res) => {
+  const userId = req.params.id;
+  const friendId = req.params.friendId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    await user.save();
+    res.status(200).json({ message: 'Ami supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'ami:', error);
+    res.status(500).json({ message: 'Erreur lors de la suppression de l\'ami', error });
+  }
+});
+
+
 io.on("connection", (socket) => {
   console.log("Un utilisateur est connecté");
 
@@ -298,6 +336,21 @@ app.get("*", (req, res) => {
   console.log("Serving index.html from:", indexPath);
   res.sendFile(indexPath);
 });
+
+app.get('/api/users/:id/friends', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await User.findById(userId).populate('friends');
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.status(200).json(user.friends);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des amis:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des amis', error });
+  }
+});
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

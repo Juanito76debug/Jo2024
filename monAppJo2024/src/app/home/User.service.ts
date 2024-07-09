@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import io from 'socket.io-client';
 import { HttpClient } from '@angular/common/http';
 import { Membre } from '../models/membre.model';
+import { catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -76,9 +77,37 @@ export class UserService {
     });
 
     // Effectue la requête HTTP PUT pour mettre à jour l'utilisateur
-    return this.http.put<Membre>(`${this.apiUrl}/${user.id}`, user);
+    return this.http.put<Membre>(`${this.apiUrl}/${user.id}`, user).pipe(
+      catchError(this.handleError<Membre>('updateUser'))
+    )
   }
   getUserProfile(userId: number): Observable<Membre> {
-    return this.http.get<Membre>(`${this.apiUrl}/${userId}`);
+    return this.http.get<Membre>(`${this.apiUrl}/${userId}`).pipe(
+      catchError(this.handleError<Membre>('getUserProfile'))
+    )
+  }
+  getFriends(userId: number): Observable<Membre[]> {
+    return this.http.get<Membre[]>(`${this.apiUrl}/${userId}/friends`).pipe(
+      catchError(this.handleError<Membre[]>('getFriends', []))
+    );
+  }
+
+  addFriend(userId: number, friendId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${userId}/friends`, { friendId }).pipe(
+      catchError(this.handleError<any>('addFriend'))
+    );
+  }
+
+  removeFriend(userId: number, friendId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${userId}/friends/${friendId}`).pipe(
+      catchError(this.handleError<any>('removeFriend'))
+    );
+  }
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+};
   }
 }
+
