@@ -9,7 +9,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { AuthGuard } from './auth.guard';
 import { AdminComponent } from './admin/admin.component';
 import { ProfileComponent } from './profile/profile.component';
-
+import { FriendListComponent } from './friend-list/friend-list.component';
 
 
 export const routes: Routes = [
@@ -24,7 +24,9 @@ export const routes: Routes = [
   {path: 'profile',
     component: ProfileComponent,
     canActivate: [AuthGuard],
-    data: { expectedRoles: ['admin', 'member'] }}
+    data: { expectedRoles: ['admin', 'member'] }},
+    {path: 'amis', component: FriendListComponent, canActivate: [AuthGuard], data: {expectedRoles: ['admin','member']}},
+  
   
   
 

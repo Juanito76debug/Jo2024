@@ -1,17 +1,53 @@
-<div *ngIf="friends">
+<div *ngIf="friends && (userRole === 'admin' || userRole === 'member')">
   <h2>Liste d'Amis de Martin</h2>
   <ul>
     <li *ngFor="let friend of friends">
-      <img [src]="'assets/' + friend.photoProfil" alt="{{ friend.pseudonyme }}" width="50" height="50" />
+      <img [src]="friend.photoProfil" alt="{{ friend.pseudonyme }}" width="50" height="50" />
       <div>
         <p>Pseudonyme: {{ friend.pseudonyme }}</p>
         <p>Nom: {{ friend.nom }}</p>
         <p>Prénom: {{ friend.prenom }}</p>
       </div>
       <button (click)="removeFriend(friend.id)">Supprimer</button>
+      <button (click)="viewFriendFriends(friend.id)">Voir les amis de {{ friend.pseudonyme }}</button>
+      <button (click)="recommendFriend(friend.id)">Recommander à un ami</button>
     </li>
   </ul>
   <input [(ngModel)]="newFriendId" placeholder="ID de l'ami à ajouter" />
   <button (click)="addFriend()">Ajouter un Ami</button>
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+</div>
+<div *ngIf="userRole === 'visitor'">
+  <p>Vous n'avez pas la permission de voir cette liste d'amis.</p>
+</div>
+
+<!-- Section pour afficher les amis d'un ami -->
+<div *ngIf="friendFriends && friendFriends.length > 0">
+  <h3>Amis de {{ selectedFriendPseudonyme }}</h3>
+  <ul>
+    <li *ngFor="let friend of friendFriends">
+      <img [src]="friend.photoProfil" alt="{{ friend.pseudonyme }}" width="50" height="50" />
+      <div>
+        <p>Pseudonyme: {{ friend.pseudonyme }}</p>
+        <p>Nom: {{ friend.nom }}</p>
+        <p>Prénom: {{ friend.prenom }}</p>
+      </div>
+      <button (click)="removeFriendFromFriend(friend.id)">Supprimer de la liste d'amis de {{ selectedFriendPseudonyme }}</button>
+    </li>
+  </ul>
+</div>
+
+<!-- Section pour afficher les recommandations d'amis -->
+<div *ngIf="friendRecommendations && friendRecommendations.length > 0">
+  <h3>Recommandations d'amis pour {{ selectedFriendPseudonyme }}</h3>
+  <ul>
+    <li *ngFor="let recommendation of friendRecommendations">
+      <div>
+        <p>Pseudonyme: {{ recommendation.pseudonyme }}</p>
+        <p>Nom: {{ recommendation.nom }}</p>
+        <p>Prénom: {{ recommendation.prenom }}</p>
+      </div>
+      <button (click)="acceptFriendRecommendation(recommendation.id)">Accepter</button>
+    </li>
+  </ul>
 </div>

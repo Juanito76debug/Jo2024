@@ -8,6 +8,7 @@ import { AuthService } from './home/auth.service';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ProfileComponent } from './profile/profile.component';
 import { UserService } from './home/User.service';
+import { FriendListComponent } from './friend-list/friend-list.component';
 
 
 
@@ -19,6 +20,8 @@ const routes: Routes = [
   {path: 'deconnexion', loadComponent: () => import('./logout/logout.component').then(m => m.LogoutComponent)},
   {path: 'Mot de passe oublié', loadComponent: ()=>import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)},
   {path: 'profile', loadComponent: ()=>import('./profile/profile.component').then(m => m.ProfileComponent)},
+  {path: 'amis', loadComponent: ()=>import('./friend-list/friend-list.component').then(m => m.FriendListComponent)},
+  
   
     
       // ... autres routes enfants ...
