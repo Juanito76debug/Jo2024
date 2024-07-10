@@ -51,3 +51,14 @@ form {
   div[ngIf] {
     margin-top: 1rem;
   }
+  .confirmation-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .ignore-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+  }

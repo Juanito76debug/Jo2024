@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss',
+  styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
   user: Membre | null = null; // Initialisation à null
@@ -20,8 +20,13 @@ export class ProfileComponent implements OnInit {
   editing: boolean = false;
   selectedFriendId: number | null = null;
   martinsFriends: Membre[] = [];
+  confirmedFriends: Membre[] = []; // Ajout d'une variable pour les amis confirmés
   selectedUserId: number | null = null;
   allUsers: Membre[] = [];
+  confirmationMessage: string | null = null; // Ajout d'une variable pour le message de confirmation
+  ignoreMessage: string | null = null; // Ajout d'une variable pour le message d'ignorance
+  recommendationMessage: string | null = null; // Ajout d'une variable pour le message de recommandation
+  ignoreRecommendationMessage: string | null = null;
 
   constructor(
     private userService: UserService,
@@ -33,6 +38,7 @@ export class ProfileComponent implements OnInit {
     this.getUserProfile();
     this.userRole = this.authService.getUserType(); // Assurez-vous que cette méthode retourne une valeur
     this.checkIfFriendOfMartin();
+    this.loadConfirmedFriends();
   }
 
   getUserProfile(): void {
@@ -46,7 +52,6 @@ export class ProfileComponent implements OnInit {
       }
     );
   }
-  
 
   checkIfFriendOfMartin(): void {
     const currentUserId = 1; // Remplacez par l'ID de l'utilisateur actuel
@@ -56,6 +61,18 @@ export class ProfileComponent implements OnInit {
       },
       (error) => {
         console.error('Erreur lors de la vérification des amis de Martin:', error);
+      }
+    );
+  }
+
+  loadConfirmedFriends(): void {
+    const userId = 1; // Remplace par l'ID de l'utilisateur actuel
+    this.userService.getFriends(userId).subscribe(
+      (friends: Membre[]) => {
+        this.confirmedFriends = friends.filter(friend => friend.status === 'confirmed');
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération des amis confirmés:', error);
       }
     );
   }
@@ -80,6 +97,7 @@ export class ProfileComponent implements OnInit {
       console.error('Erreur: Aucun utilisateur à mettre à jour.');
     }
   }
+
   onSelectFriend(): void {
     // Trouvez l'ami sélectionné par son ID
     const friend = this.martinsFriends.find(
@@ -90,6 +108,7 @@ export class ProfileComponent implements OnInit {
       this.editing = true; // Activez le mode d'édition
     }
   }
+
   onSelectUser(): void {
     // Trouvez l'utilisateur sélectionné par son ID
     const user = this.allUsers.find((u) => u.id === this.selectedUserId);
@@ -98,6 +117,7 @@ export class ProfileComponent implements OnInit {
       this.editing = true; // Activez le mode d'édition
     }
   }
+
   deleteUser(userId: number): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce profil ?')) {
       this.userService.deleteUser(userId).subscribe(
@@ -109,23 +129,90 @@ export class ProfileComponent implements OnInit {
           console.error('Erreur lors de la suppression du profil:', error);
           alert('Une erreur est survenue lors de la suppression du profil.');
         }
-      ) 
-    };
+      );
+    }
   }
-    
-    deleteAllUsers(): void {
-      if (confirm('Êtes-vous sûr de vouloir supprimer tous les profils ?')) {
-        this.userService.deleteAllUsers().subscribe(
+
+  deleteAllUsers(): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer tous les profils ?')) {
+      this.userService.deleteAllUsers().subscribe(
+        (response) => {
+          alert('Tous les profils ont été supprimés avec succès.');
+          this.router.navigate(['/home']); // Redirigez vers la page d'accueil après suppression
+        },
+        (error) => {
+          console.error('Erreur lors de la suppression de tous les profils:', error);
+          alert('Une erreur est survenue lors de la suppression de tous les profils.');
+        }
+      );
+    }
+  }
+
+  confirmFriendRequest(requesterId: number): void {
+    if (this.user) {
+      this.userService.confirmFriendRequest(requesterId, this.user.id).subscribe(
+        (response) => {
+          // Gérer la réponse après la confirmation de la demande d'ami
+          this.confirmationMessage = 'Demande d\'ami confirmée avec succès.';
+          // Mettre à jour la liste des amis si nécessaire
+        },
+        (error) => {
+          console.error('Erreur lors de la confirmation de la demande d\'ami:', error);
+          alert('Une erreur est survenue lors de la confirmation de la demande d\'ami.');
+        }
+      );
+    } else {
+      console.error('Erreur: Aucun utilisateur pour confirmer la demande d\'ami.');
+    }
+  }
+
+  ignoreFriendRequest(requesterId: number): void {
+    if (this.user) {
+      this.userService.ignoreFriendRequest(requesterId, this.user.id).subscribe(
+        (response) => {
+          // Gérer la réponse après l'ignorance de la demande d'ami
+          this.ignoreMessage = 'Demande d\'ami ignorée avec succès.';
+          // Mettre à jour la liste des amis si nécessaire
+        },
+        (error) => {
+          console.error('Erreur lors de l\'ignorance de la demande d\'ami:', error);
+          alert('Une erreur est survenue lors de l\'ignorance de la demande d\'ami.');
+        }
+      );
+    } else {
+      console.error('Erreur: Aucun utilisateur pour ignorer la demande d\'ami.');
+    }
+  }
+
+  recommendFriend(friendId: number | null): void {
+    if (this.user && friendId !== null) {
+      this.userService.recommendFriend(this.user.id, friendId, this.user.id).subscribe(
+        (response) => {
+          // Gérer la réponse après la recommandation d'un ami
+          this.recommendationMessage = 'Ami recommandé avec succès.';
+        },
+        (error) => {
+          console.error('Erreur lors de la recommandation de l\'ami:', error);
+          alert('Une erreur est survenue lors de la recommandation de l\'ami.');
+        }
+      );
+    } else {
+      console.error('Erreur: Aucun utilisateur pour recommander un ami ou ami non sélectionné.');
+    }
+  }
+  sendRecommendationEmail(friendId: number): void {
+    if (this.user) {
+      const friend = this.confirmedFriends.find(f => f.id === friendId);
+      if (friend) {
+        this.userService.sendRecommendationEmail(friend.email, this.user.pseudonyme, friend.pseudonyme).subscribe(
           (response) => {
-            alert('Tous les profils ont été supprimés avec succès.');
-            this.router.navigate(['/home']); // Redirigez vers la page d'accueil après suppression
+            console.log('Notification par e-mail envoyée avec succès.');
           },
           (error) => {
-            console.error('Erreur lors de la suppression de tous les profils:', error);
-            alert('Une erreur est survenue lors de la suppression de tous les profils.');
+            console.error('Erreur lors de l\'envoi de la notification par e-mail:', error);
           }
         );
-
-  } 
-}
+      }
+    }
+  }
 }

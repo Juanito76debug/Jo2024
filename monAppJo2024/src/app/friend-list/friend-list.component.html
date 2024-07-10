@@ -1,7 +1,7 @@
-<div *ngIf="friends && (userRole === 'admin' || userRole === 'member')">
+<div *ngIf="confirmedFriends && (userRole === 'admin' || userRole === 'member')">
   <h2>Liste d'Amis de Martin</h2>
   <ul>
-    <li *ngFor="let friend of friends">
+    <li *ngFor="let friend of confirmedFriends">
       <img [src]="friend.photoProfil" alt="{{ friend.pseudonyme }}" width="50" height="50" />
       <div>
         <p>Pseudonyme: {{ friend.pseudonyme }}</p>

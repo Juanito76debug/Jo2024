@@ -9,6 +9,7 @@ export interface Membre {
   dateNaissance: Date;
   photoProfil: string;
   presentation: string;
+  status: string;
 }
 
 export const martin: Membre = {
@@ -23,6 +24,7 @@ export const martin: Membre = {
   photoProfil: 'assets/Martin.png',
   presentation:
     "Passionné de sport et de l'esprit olympique, je suis toujours prêt à relever de nouveaux défis et à partager mes expériences avec la communauté.",
+    status: 'confirmed'
 };
 
 export const friends: Membre[] = [
@@ -37,5 +39,6 @@ export const friends: Membre[] = [
     dateNaissance: new Date('1986-06-03'), // Format AAAA-MM-JJ
     photoProfil: 'assets/Rafa.png',
     presentation: "Joueur de tennis professionnel, passionné par le sport et les compétitions.",
+    status: 'confirmed'
   }
 ];

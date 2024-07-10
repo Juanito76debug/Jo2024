@@ -104,11 +104,36 @@ export class UserService {
     );
   }
 
-  recommendFriend(userId: number, friendId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/recommend`, { friendId }).pipe(
+  recommendFriend(userId: number, friendId: number, recommenderId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${userId}/recommend`, { friendId, recommenderId }).pipe(
       catchError(this.handleError<any>('recommendFriend'))
     );
   }
+
+  confirmFriendRequest(requesterId: number, receiverId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${receiverId}/confirmFriend`, { requesterId }).pipe(
+      catchError(this.handleError<any>('confirmFriendRequest'))
+    );
+  }
+  ignoreFriendRequest(requesterId: number, receiverId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${receiverId}/ignoreFriend`, { requesterId }).pipe(
+      catchError(this.handleError<any>('ignoreFriendRequest'))
+    );
+  }
+  ignoreRecommendation(userId: number, friendId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${userId}/ignoreRecommendation`, { friendId }).pipe(
+      catchError(this.handleError<any>('ignoreRecommendation'))
+    );
+  }
+
+
+  sendRecommendationEmail(receiverEmail: string, recommenderName: string, friendName: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/sendRecommendationEmail`, { receiverEmail, recommenderName, friendName }).pipe(
+      catchError(this.handleError<any>('sendRecommendationEmail'))
+    );
+  }
+
+
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

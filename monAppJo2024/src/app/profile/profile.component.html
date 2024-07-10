@@ -35,7 +35,7 @@
 </div>
 
 <!-- Affiche tous les profils si l'utilisateur est un administrateur -->
-<<div *ngIf="userRole === 'admin'">
+<div *ngIf="userRole === 'admin'">
   <label for="friendsList">Sélectionnez un ami de Martin :</label>
   <select id="friendsList" [(ngModel)]="selectedFriendId" (change)="onSelectFriend()">
     <option *ngFor="let friend of martinsFriends" [value]="friend.id">{{ friend.pseudonyme }}</option>
@@ -54,4 +54,24 @@
   <select id="usersList" [(ngModel)]="selectedUserId" (change)="onSelectUser()">
     <option *ngFor="let user of allUsers" [value]="user.id">{{ user.pseudonyme }}</option>
   </select>
+</div>
+
+<div *ngIf="confirmationMessage" class="confirmation-message">
+  {{ confirmationMessage }}
+</div>
+
+<div *ngIf="ignoreMessage" class="ignore-message">
+  {{ ignoreMessage }}
+</div>
+
+<div *ngIf="recommendationMessage" class="recommendation-message">
+  {{ recommendationMessage }}
+</div>
+
+<div *ngIf="confirmedFriends.length > 0">
+  <label for="friendSelect">Recommander un ami :</label>
+  <select id="friendSelect" [(ngModel)]="selectedFriendId">
+    <option *ngFor="let friend of confirmedFriends" [value]="friend.id">{{ friend.pseudonyme }}</option>
+  </select>
+  <button (click)="recommendFriend(selectedFriendId)">Recommander</button>
 </div>

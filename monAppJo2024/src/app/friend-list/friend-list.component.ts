@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class FriendListComponent implements OnInit {
   friends: Membre[] = [];
+  confirmedFriends: Membre[] = [];
   friendFriends: Membre[] = []; 
   friendRequests: Membre[] = [];
   friendRecommendations: Membre[] = [];
@@ -37,12 +38,17 @@ export class FriendListComponent implements OnInit {
     this.userService.getFriends(this.userId).subscribe(
       (friends) => {
         this.friends = friends;
+        this.filterConfirmedFriends();
       },
       (error) => {
         this.errorMessage = 'Erreur lors de la récupération des amis';
         console.error('Erreur lors de la récupération des amis:', error);
       }
     );
+  }
+
+  filterConfirmedFriends(): void {
+    this.confirmedFriends = this.friends.filter(friend => friend.status === 'confirmed');
   }
 
   addFriend(): void {
@@ -64,6 +70,7 @@ export class FriendListComponent implements OnInit {
     this.userService.removeFriend(this.userId, friendId).subscribe(
       () => {
         this.friends = this.friends.filter(friend => friend.id !== friendId);
+        this.filterConfirmedFriends();
       },
       (error) => {
         this.errorMessage = 'Erreur lors de la suppression de l\'ami';
@@ -76,7 +83,7 @@ export class FriendListComponent implements OnInit {
     if (this.userRole === 'admin' || this.userRole === 'member') {
       this.userService.getFriends(friendId).subscribe(
         (friends) => {
-          this.friendFriends = friends;
+          this.friendFriends = friends.filter(friend => friend.status === 'confirmed');
           const selectedFriend = this.friends.find(friend => friend.id === friendId);
           this.selectedFriendPseudonyme = selectedFriend ? selectedFriend.pseudonyme : '';
         },
@@ -104,6 +111,7 @@ export class FriendListComponent implements OnInit {
       }
     }
   }
+
   acceptFriendRequest(requestId: number): void {
     if (this.userRole === 'admin' || this.userRole === 'member') {
       const selectedFriend = this.friends.find(friend => friend.pseudonyme === this.selectedFriendPseudonyme);
@@ -121,11 +129,12 @@ export class FriendListComponent implements OnInit {
       }
     }
   }
+
   recommendFriend(friendId: number): void {
     if (this.userRole === 'admin' || this.userRole === 'member') {
       const selectedFriend = this.friends.find(friend => friend.pseudonyme === this.selectedFriendPseudonyme);
       if (selectedFriend) {
-        this.userService.recommendFriend(selectedFriend.id, friendId).subscribe(
+        this.userService.recommendFriend(selectedFriend.id, friendId, this.userId).subscribe(
           (recommendation) => {
             this.friendRecommendations.push(recommendation);
           },
@@ -156,4 +165,3 @@ export class FriendListComponent implements OnInit {
     }
   }
 }
-
