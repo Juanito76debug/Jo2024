@@ -38,12 +38,20 @@ app.get("/", (req, res) => {
   res.send("Bienvenue sur le serveur Node.js pour les Jeux Olympiques 2024!");
 });
 
+// Définissez le chemin statique pour servir les fichiers de votre application Angular
+const staticPath = path.join(__dirname, "../monAppJo2024/src");
+console.log("Static path:", staticPath);
+app.use(express.static(staticPath));
+
+// Route pour servir index.html
+app.get("*", (req, res) => {
+  const indexPath = path.join(staticPath, "index.html");
+  console.log("Serving index.html from:", indexPath);
+  res.sendFile(indexPath);
+});
+
 mongoose
-  .connect("mongodb://localhost:27017/monAppJo2024", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    
-  })
+  .connect("mongodb://localhost:27017/monAppJo2024")
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch((error) => {
     console.error("Connexion à MongoDB échouée !", error);
@@ -54,7 +62,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 userSchema.pre("save", async function (next) {
@@ -173,109 +181,191 @@ app.post("/api/forgot-password", async (req, res) => {
   }
 });
 
-app.post('/api/users/:id/friends', async (req, res) => {
+app.post("/api/users/:id/friends", async (req, res) => {
   const userId = req.params.id;
   const friendId = req.body.friendId;
   try {
     const user = await User.findById(userId);
     const friend = await User.findById(friendId);
     if (!user || !friend) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
     user.friends.push(friendId);
     await user.save();
-    res.status(200).json({ message: 'Ami ajouté avec succès' });
+    res.status(200).json({ message: "Ami ajouté avec succès" });
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de l\'ami:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'ami', error });
+    console.error("Erreur lors de l'ajout de l'ami:", error);
+    res.status(500).json({ message: "Erreur lors de l'ajout de l'ami", error });
   }
 });
 
-
 // Route pour obtenir le profil d'un utilisateur par ID
-app.get('/api/users/:id', async (req, res) => {
+app.get("/api/users/:id", async (req, res) => {
   const userId = req.params.id;
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(`Erreur lors de la récupération de l'utilisateur avec ID ${userId}:`, error);
-    res.status(500).json({ message: 'Erreur lors de la récupération de l\'utilisateur', error });
+    console.error(
+      `Erreur lors de la récupération de l'utilisateur avec ID ${userId}:`,
+      error
+    );
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la récupération de l'utilisateur",
+        error,
+      });
   }
 });
 
 // Route pour obtenir tous les utilisateurs
-app.get('/api/users', async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).json(users);
   } catch (error) {
-    console.error('Erreur lors de la récupération des utilisateurs:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la récupération des utilisateurs",
+        error,
+      });
   }
 });
 
 // Route pour mettre à jour un utilisateur par ID
-app.put('/api/users/:id', async (req, res) => {
+app.put("/api/users/:id", async (req, res) => {
   const userId = req.params.id;
   const updateData = req.body;
   try {
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    const user = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(`Erreur lors de la mise à jour de l'utilisateur avec ID ${userId}:`, error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'utilisateur', error });
+    console.error(
+      `Erreur lors de la mise à jour de l'utilisateur avec ID ${userId}:`,
+      error
+    );
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la mise à jour de l'utilisateur",
+        error,
+      });
+  }
+});
+
+// Route pour mettre à jour un utilisateur par ID
+app.put("/api/users/:id", async (req, res) => {
+  const userId = req.params.id;
+  const updateData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(
+      `Erreur lors de la mise à jour de l'utilisateur avec ID ${userId}:`,
+      error
+    );
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la mise à jour de l'utilisateur",
+        error,
+      });
   }
 });
 
 // Route pour supprimer un utilisateur par ID
-app.delete('/api/users/:id', async (req, res) => {
+app.delete("/api/users/:id", async (req, res) => {
   const userId = req.params.id;
   try {
     await User.findByIdAndDelete(userId);
     console.log(`Utilisateur avec ID ${userId} supprimé.`);
-    res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
+    res.status(200).json({ message: "Utilisateur supprimé avec succès" });
   } catch (error) {
-    console.error(`Erreur lors de la suppression de l'utilisateur avec ID ${userId}:`, error);
-    res.status(500).json({ message: 'Erreur lors de la suppression de l\'utilisateur', error });
+    console.error(
+      `Erreur lors de la suppression de l'utilisateur avec ID ${userId}:`,
+      error
+    );
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la suppression de l'utilisateur",
+        error,
+      });
   }
 });
 
 // Route pour supprimer tous les utilisateurs
-app.delete('/api/users', async (req, res) => {
+app.delete("/api/users", async (req, res) => {
   try {
     await User.deleteMany({});
-    console.log('Tous les utilisateurs ont été supprimés.');
-    res.status(200).json({ message: 'Tous les utilisateurs ont été supprimés avec succès' });
+    console.log("Tous les utilisateurs ont été supprimés.");
+    res
+      .status(200)
+      .json({ message: "Tous les utilisateurs ont été supprimés avec succès" });
   } catch (error) {
-    console.error('Erreur lors de la suppression des utilisateurs:', error);
-    res.status(500).json({ message: 'Erreur lors de la suppression des utilisateurs', error });
+    console.error("Erreur lors de la suppression des utilisateurs:", error);
+    res
+      .status(500)
+      .json({
+        message: "Erreur lors de la suppression des utilisateurs",
+        error,
+      });
   }
 });
 
-app.delete('/api/users/:id/friends/:friendId', async (req, res) => {
+// Route pour supprimer un ami d'un utilisateur par ID
+app.delete("/api/users/:id/friends/:friendId", async (req, res) => {
   const userId = req.params.id;
   const friendId = req.params.friendId;
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
-    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    user.friends = user.friends.filter((id) => id.toString() !== friendId);
     await user.save();
-    res.status(200).json({ message: 'Ami supprimé avec succès' });
+    res.status(200).json({ message: "Ami supprimé avec succès" });
   } catch (error) {
-    console.error('Erreur lors de la suppression de l\'ami:', error);
-    res.status(500).json({ message: 'Erreur lors de la suppression de l\'ami', error });
+    console.error("Erreur lors de la suppression de l'ami:", error);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la suppression de l'ami", error });
   }
 });
 
+// Route pour obtenir la liste des amis d'un utilisateur par ID
+app.get("/api/users/:id/friends", async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await User.findById(userId).populate("friends");
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    res.status(200).json(user.friends);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des amis:", error);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération des amis", error });
+  }
+});
 
 io.on("connection", (socket) => {
   console.log("Un utilisateur est connecté");
@@ -307,18 +397,18 @@ io.on("connection", (socket) => {
   socket.on("deleteUser", async (userId) => {
     try {
       await User.findByIdAndDelete(userId);
-      socket.emit('userDeleted', { success: true });
+      socket.emit("userDeleted", { success: true });
     } catch (error) {
-      socket.emit('error', { success: false, message: error.message });
+      socket.emit("error", { success: false, message: error.message });
     }
   });
 
   socket.on("deleteAllUsers", async () => {
     try {
       await User.deleteMany({});
-      socket.emit('allUsersDeleted', { success: true });
+      socket.emit("allUsersDeleted", { success: true });
     } catch (error) {
-      socket.emit('error', { success: false, message: error.message });
+      socket.emit("error", { success: false, message: error.message });
     }
   });
 
@@ -326,31 +416,6 @@ io.on("connection", (socket) => {
     console.log("Un utilisateur s'est déconnecté");
   });
 });
-
-const staticPath = path.join(__dirname, "Jo2024/monAppJo2024/src");
-console.log("Static path:", staticPath);
-app.use(express.static(staticPath));
-
-app.get("*", (req, res) => {
-  const indexPath = path.join(staticPath, "index.html");
-  console.log("Serving index.html from:", indexPath);
-  res.sendFile(indexPath);
-});
-
-app.get('/api/users/:id/friends', async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const user = await User.findById(userId).populate('friends');
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
-    res.status(200).json(user.friends);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des amis:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des amis', error });
-  }
-});
-
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

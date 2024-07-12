@@ -50,7 +50,7 @@ export class UserService {
         observer.error(error);
       });
     });
-  } 
+  }
 
   // Simule le suivi des utilisateurs connectés
   getConnectedUsersCount(): Observable<number> {
@@ -60,7 +60,11 @@ export class UserService {
       });
     });
   }
-
+  getAllMembers(): Observable<Membre[]> {
+    return this.http
+      .get<Membre[]>(this.apiUrl)
+      .pipe(catchError(this.handleError<Membre[]>('getAllMembers', [])));
+  }
   getUserRole(): string {
     // Simule l'obtention du rôle de l'utilisateur (à remplacer par une vraie implémentation)
     return 'member'; // ou 'admin'
@@ -77,63 +81,105 @@ export class UserService {
     });
 
     // Effectue la requête HTTP PUT pour mettre à jour l'utilisateur
-    return this.http.put<Membre>(`${this.apiUrl}/${user.id}`, user).pipe(
-      catchError(this.handleError<Membre>('updateUser'))
-    )
+    return this.http
+      .put<Membre>(`${this.apiUrl}/${user.id}`, user)
+      .pipe(catchError(this.handleError<Membre>('updateUser')));
   }
   getUserProfile(userId: number): Observable<Membre> {
-    return this.http.get<Membre>(`${this.apiUrl}/${userId}`).pipe(
-      catchError(this.handleError<Membre>('getUserProfile'))
-    )
+    return this.http
+      .get<Membre>(`${this.apiUrl}/${userId}`)
+      .pipe(catchError(this.handleError<Membre>('getUserProfile')));
   }
   getFriends(userId: number): Observable<Membre[]> {
-    return this.http.get<Membre[]>(`${this.apiUrl}/${userId}/friends`).pipe(
-      catchError(this.handleError<Membre[]>('getFriends', []))
-    );
+    return this.http
+      .get<Membre[]>(`${this.apiUrl}/${userId}/friends`)
+      .pipe(catchError(this.handleError<Membre[]>('getFriends', [])));
   }
 
   addFriend(userId: number, friendId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/friends`, { friendId }).pipe(
-      catchError(this.handleError<any>('addFriend'))
-    );
+    return this.http
+      .post(`${this.apiUrl}/${userId}/friends`, { friendId })
+      .pipe(catchError(this.handleError<any>('addFriend')));
   }
 
   removeFriend(userId: number, friendId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}/friends/${friendId}`).pipe(
-      catchError(this.handleError<any>('removeFriend'))
-    );
+    return this.http
+      .delete(`${this.apiUrl}/${userId}/friends/${friendId}`)
+      .pipe(catchError(this.handleError<any>('removeFriend')));
   }
 
-  recommendFriend(userId: number, friendId: number, recommenderId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/recommend`, { friendId, recommenderId }).pipe(
-      catchError(this.handleError<any>('recommendFriend'))
-    );
+  recommendFriend(
+    userId: number,
+    friendId: number,
+    recommenderId: number
+  ): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/${userId}/recommend`, { friendId, recommenderId })
+      .pipe(catchError(this.handleError<any>('recommendFriend')));
   }
 
-  confirmFriendRequest(requesterId: number, receiverId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${receiverId}/confirmFriend`, { requesterId }).pipe(
-      catchError(this.handleError<any>('confirmFriendRequest'))
-    );
+  confirmFriendRequest(
+    requesterId: number,
+    receiverId: number
+  ): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/${receiverId}/confirmFriend`, { requesterId })
+      .pipe(catchError(this.handleError<any>('confirmFriendRequest')));
   }
-  ignoreFriendRequest(requesterId: number, receiverId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${receiverId}/ignoreFriend`, { requesterId }).pipe(
-      catchError(this.handleError<any>('ignoreFriendRequest'))
-    );
+  ignoreFriendRequest(
+    requesterId: number,
+    receiverId: number
+  ): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/${receiverId}/ignoreFriend`, { requesterId })
+      .pipe(catchError(this.handleError<any>('ignoreFriendRequest')));
   }
   ignoreRecommendation(userId: number, friendId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${userId}/ignoreRecommendation`, { friendId }).pipe(
-      catchError(this.handleError<any>('ignoreRecommendation'))
-    );
+    return this.http
+      .post(`${this.apiUrl}/${userId}/ignoreRecommendation`, { friendId })
+      .pipe(catchError(this.handleError<any>('ignoreRecommendation')));
   }
 
-
-  sendRecommendationEmail(receiverEmail: string, recommenderName: string, friendName: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/sendRecommendationEmail`, { receiverEmail, recommenderName, friendName }).pipe(
-      catchError(this.handleError<any>('sendRecommendationEmail'))
-    );
+  sendRecommendationEmail(
+    receiverEmail: string,
+    recommenderName: string,
+    friendName: string
+  ): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/sendRecommendationEmail`, {
+        receiverEmail,
+        recommenderName,
+        friendName,
+      })
+      .pipe(catchError(this.handleError<any>('sendRecommendationEmail')));
   }
 
+  searchMembers(query: string): Observable<Membre[]> {
+    return this.http
+      .get<Membre[]>(`${this.apiUrl}?q=${query}`)
+      .pipe(catchError(this.handleError<Membre[]>('searchMembers', [])));
+  }
 
+  sendFriendRequest(requesterId: number, friendId: number): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/${requesterId}/friendRequests`, {
+        friendId,
+        requesterStatus: 'invitation en cours',
+        receiverStatus: 'en attente de confirmation',
+      })
+      .pipe(catchError(this.handleError<any>('sendFriendRequest')));
+  }
+  sendNotificationEmail(
+    receiverEmail: string,
+    requesterName: string
+  ): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/sendNotificationEmail`, {
+        receiverEmail,
+        requesterName,
+      })
+      .pipe(catchError(this.handleError<any>('sendNotificationEmail')));
+  }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

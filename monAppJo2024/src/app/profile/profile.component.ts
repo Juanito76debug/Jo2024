@@ -48,7 +48,10 @@ export class ProfileComponent implements OnInit {
         this.user = user;
       },
       (error) => {
-        console.error('Erreur lors de la récupération du profil utilisateur:', error);
+        console.error(
+          'Erreur lors de la récupération du profil utilisateur:',
+          error
+        );
       }
     );
   }
@@ -60,7 +63,10 @@ export class ProfileComponent implements OnInit {
         this.isFriendOfMartin = isFriend;
       },
       (error) => {
-        console.error('Erreur lors de la vérification des amis de Martin:', error);
+        console.error(
+          'Erreur lors de la vérification des amis de Martin:',
+          error
+        );
       }
     );
   }
@@ -69,10 +75,15 @@ export class ProfileComponent implements OnInit {
     const userId = 1; // Remplace par l'ID de l'utilisateur actuel
     this.userService.getFriends(userId).subscribe(
       (friends: Membre[]) => {
-        this.confirmedFriends = friends.filter(friend => friend.status === 'confirmed');
+        this.confirmedFriends = friends.filter(
+          (friend) => friend.status === 'confirmed'
+        );
       },
       (error) => {
-        console.error('Erreur lors de la récupération des amis confirmés:', error);
+        console.error(
+          'Erreur lors de la récupération des amis confirmés:',
+          error
+        );
       }
     );
   }
@@ -141,8 +152,13 @@ export class ProfileComponent implements OnInit {
           this.router.navigate(['/home']); // Redirigez vers la page d'accueil après suppression
         },
         (error) => {
-          console.error('Erreur lors de la suppression de tous les profils:', error);
-          alert('Une erreur est survenue lors de la suppression de tous les profils.');
+          console.error(
+            'Erreur lors de la suppression de tous les profils:',
+            error
+          );
+          alert(
+            'Une erreur est survenue lors de la suppression de tous les profils.'
+          );
         }
       );
     }
@@ -150,19 +166,28 @@ export class ProfileComponent implements OnInit {
 
   confirmFriendRequest(requesterId: number): void {
     if (this.user) {
-      this.userService.confirmFriendRequest(requesterId, this.user.id).subscribe(
-        (response) => {
-          // Gérer la réponse après la confirmation de la demande d'ami
-          this.confirmationMessage = 'Demande d\'ami confirmée avec succès.';
-          // Mettre à jour la liste des amis si nécessaire
-        },
-        (error) => {
-          console.error('Erreur lors de la confirmation de la demande d\'ami:', error);
-          alert('Une erreur est survenue lors de la confirmation de la demande d\'ami.');
-        }
-      );
+      this.userService
+        .confirmFriendRequest(requesterId, this.user.id)
+        .subscribe(
+          (response) => {
+            // Gérer la réponse après la confirmation de la demande d'ami
+            this.confirmationMessage = "Demande d'ami confirmée avec succès.";
+            // Mettre à jour la liste des amis si nécessaire
+          },
+          (error) => {
+            console.error(
+              "Erreur lors de la confirmation de la demande d'ami:",
+              error
+            );
+            alert(
+              "Une erreur est survenue lors de la confirmation de la demande d'ami."
+            );
+          }
+        );
     } else {
-      console.error('Erreur: Aucun utilisateur pour confirmer la demande d\'ami.');
+      console.error(
+        "Erreur: Aucun utilisateur pour confirmer la demande d'ami."
+      );
     }
   }
 
@@ -171,47 +196,67 @@ export class ProfileComponent implements OnInit {
       this.userService.ignoreFriendRequest(requesterId, this.user.id).subscribe(
         (response) => {
           // Gérer la réponse après l'ignorance de la demande d'ami
-          this.ignoreMessage = 'Demande d\'ami ignorée avec succès.';
+          this.ignoreMessage = "Demande d'ami ignorée avec succès.";
           // Mettre à jour la liste des amis si nécessaire
         },
         (error) => {
-          console.error('Erreur lors de l\'ignorance de la demande d\'ami:', error);
-          alert('Une erreur est survenue lors de l\'ignorance de la demande d\'ami.');
+          console.error(
+            "Erreur lors de l'ignorance de la demande d'ami:",
+            error
+          );
+          alert(
+            "Une erreur est survenue lors de l'ignorance de la demande d'ami."
+          );
         }
       );
     } else {
-      console.error('Erreur: Aucun utilisateur pour ignorer la demande d\'ami.');
+      console.error("Erreur: Aucun utilisateur pour ignorer la demande d'ami.");
     }
   }
 
   recommendFriend(friendId: number | null): void {
     if (this.user && friendId !== null) {
-      this.userService.recommendFriend(this.user.id, friendId, this.user.id).subscribe(
-        (response) => {
-          // Gérer la réponse après la recommandation d'un ami
-          this.recommendationMessage = 'Ami recommandé avec succès.';
-        },
-        (error) => {
-          console.error('Erreur lors de la recommandation de l\'ami:', error);
-          alert('Une erreur est survenue lors de la recommandation de l\'ami.');
-        }
-      );
+      this.userService
+        .recommendFriend(this.user.id, friendId, this.user.id)
+        .subscribe(
+          (response) => {
+            // Gérer la réponse après la recommandation d'un ami
+            this.recommendationMessage = 'Ami recommandé avec succès.';
+          },
+          (error) => {
+            console.error("Erreur lors de la recommandation de l'ami:", error);
+            alert(
+              "Une erreur est survenue lors de la recommandation de l'ami."
+            );
+          }
+        );
     } else {
-      console.error('Erreur: Aucun utilisateur pour recommander un ami ou ami non sélectionné.');
+      console.error(
+        'Erreur: Aucun utilisateur pour recommander un ami ou ami non sélectionné.'
+      );
     }
   }
   sendRecommendationEmail(friendId: number): void {
     if (this.user) {
-      const friend = this.confirmedFriends.find(f => f.id === friendId);
+      const friend = this.confirmedFriends.find((f) => f.id === friendId);
       if (friend) {
-        this.userService.sendRecommendationEmail(friend.email, this.user.pseudonyme, friend.pseudonyme).subscribe(
-          (response) => {
-            console.log('Notification par e-mail envoyée avec succès.');
-          },
-          (error) => {
-            console.error('Erreur lors de l\'envoi de la notification par e-mail:', error);
-          }
-        );
+        this.userService
+          .sendRecommendationEmail(
+            friend.email,
+            this.user.pseudonyme,
+            friend.pseudonyme
+          )
+          .subscribe(
+            (response) => {
+              console.log('Notification par e-mail envoyée avec succès.');
+            },
+            (error) => {
+              console.error(
+                "Erreur lors de l'envoi de la notification par e-mail:",
+                error
+              );
+            }
+          );
       }
     }
   }
